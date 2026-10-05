@@ -51,7 +51,12 @@ const currentCards = []
 let movesCount = 0;
 let matchiesCount = 0;
 const now = new Date(); 
-console.log(now.toLocaleDateString('en-GB'))
+
+const liderBoard = []
+if (localStorage.getItem('liderBoard')) {
+  liderBoard.push(...JSON.parse(localStorage.getItem('liderBoard')))
+}
+
 
 const body = document.querySelector('body')
 
@@ -86,6 +91,28 @@ function fillBoard(cards) {
   });
 }
 
+function open(){
+  modal.classList.add('active')
+  body.classList.add('no-scroll')
+}
+
+function close(){
+  modal.classList.remove('active')
+  body.classList.remove('no-scroll')
+}
+
+function resetGame(){
+  console.log('new game')
+  board.replaceChildren();
+  shuffle(deck)
+  fillBoard(deck)
+  movesCount = 0
+  matchiesCount = 0
+  moves.innerText = `Moves - ${movesCount}`
+  matchies.innerText = `Matchies - ${matchiesCount} of 8`
+  close()
+}  
+
 
 //header
 const header = document.createElement('header')
@@ -102,6 +129,14 @@ const leadersBoardButton = document.createElement('button')
 leadersBoardButton.classList.add('btn', 'leaders-board-btn')
 leadersBoardButton.appendChild(document.createTextNode('Leaders board'))
 nav.appendChild(leadersBoardButton)
+
+const newGameBtn = document.createElement('button')
+newGameBtn.classList.add('btn', 'new-game-btn')
+newGameBtn.appendChild(document.createTextNode('New game'))
+
+const closeBtn = document.createElement('button')
+closeBtn.classList.add('btn', 'close-btn')
+closeBtn.appendChild(document.createTextNode('Close'))
 
 header.appendChild(nav)
 body.appendChild(header)
@@ -123,13 +158,35 @@ stats.appendChild(moves)
 stats.appendChild(matchies)
 main.appendChild(stats)
 
-
 const board = document.createElement('ul')
 board.classList.add('board')
 main.appendChild(board)
 body.appendChild(main)
 
 fillBoard(deck)
+
+//footer
+const footer = document.createElement('footer')
+footer.classList.add('section')
+footer.appendChild(document.createTextNode('Memory game © 2026'))
+body.appendChild(footer)
+
+//modal
+const modal = document.createElement('div')
+modal.classList.add('modal')
+const box = document.createElement('div')
+box.classList.add('box')
+const title = document.createElement('h2')
+title.classList.add('title')
+const text = document.createElement('div')
+text.classList.add('text')
+
+box.appendChild(title)
+box.appendChild(text)
+box.appendChild(newGameBtn)
+box.appendChild(closeBtn)
+modal.appendChild(box)
+body.appendChild(modal)
 
 board.addEventListener('click',(event)=>{
   if (currentCards.length < 2) { 
@@ -147,7 +204,16 @@ board.addEventListener('click',(event)=>{
           matchies.innerText = `Matchies - ${matchiesCount} of 8`  
           openCards.push(...currentCards)
           if (openCards.length === 16) {
-            console.log('Winner')            
+            console.log('Winner')
+            const win = {
+              moves: movesCount,
+              date: now.toLocaleDateString('en-GB')
+            }
+            liderBoard.push(win)
+            localStorage.setItem('liderBoard', JSON.stringify(liderBoard))
+            title.innerText = 'Winner!' 
+            text.innerText = `You found all matchies in ${movesCount} moves`
+            open()
           }
           currentCards.length = 0;
         } else {
@@ -155,7 +221,7 @@ board.addEventListener('click',(event)=>{
             currentCards[0].classList.remove('active');
             currentCards[1].classList.remove('active');
             currentCards.length = 0;
-          },800)
+          },700)
         }
       }
     }
@@ -163,25 +229,37 @@ board.addEventListener('click',(event)=>{
   console.log(openCards)
 })
 
-newGameButton.addEventListener('click',()=>{
-  console.log('new game')
-  board.replaceChildren();
-  shuffle(deck)
-  fillBoard(deck)
-  movesCount = 0
-  matchiesCount = 0
-  moves.innerText = `Moves - ${movesCount}`
-  matchies.innerText = `Matchies - ${matchiesCount} of 8`
-
+newGameButton.addEventListener('click', resetGame)
+newGameBtn.addEventListener('click', resetGame)
+closeBtn.addEventListener('click', close)
+modal.addEventListener('click', (event)=>{
+  if (event.target.classList.contains('modal')) {
+    close()
+  }
 })
+
+window.addEventListener("keydown", (event) => {
+  if (event.code === "Escape") {
+    close()
+  }
+});
 
 leadersBoardButton.addEventListener('click',()=>{
-  console.log('leders board')
+  title.innerText = 'Lider board'
+  console.log(liderBoard)
+  text.replaceChildren();
+  if (liderBoard.length) {
+    liderBoard.sort((a, b)=> a.moves - b.moves)
+    liderBoard.splice(10)
+    let liderCount = 1
+    liderBoard.forEach(lider => {
+      const line = document.createElement('span')
+      line.innerText= `place: ${liderCount} moves: ${lider.moves} date: ${lider.date}`
+      text.appendChild(line)
+      liderCount += 1
+    });
+  } else {
+    text.innerText = 'There is no winers yet'
+  }
+  open()
 })
-
-
-//footer
-const footer = document.createElement('footer')
-footer.classList.add('section')
-footer.appendChild(document.createTextNode('Memory Game © 2026'))
-body.appendChild(footer)
