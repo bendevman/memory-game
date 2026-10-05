@@ -12,3 +12,33 @@ import monster_7 from './assets/monster_7.png'
 import monster_8 from './assets/monster_8.png'
 
 const body = document.querySelector('body')
+
+//header
+const header = document.createElement('header')
+header.classList.add('section')
+
+const nav = document.createElement('nav')
+
+const newGameButton = document.createElement('button')
+newGameButton.classList.add('btn', 'new-game-btn')
+newGameButton.appendChild(document.createTextNode('New game'))
+nav.appendChild(newGameButton)
+
+const leadersBoardButton = document.createElement('button')
+leadersBoardButton.classList.add('btn', 'leaders-board-btn')
+leadersBoardButton.appendChild(document.createTextNode('Leaders board'))
+nav.appendChild(leadersBoardButton)
+
+header.appendChild(nav)
+body.appendChild(header)
+
+
+
+
+
+
+//footer
+const footer = document.createElement('footer')
+footer.classList.add('section')
+footer.appendChild(document.createTextNode('Memory Game © 2026'))
+body.appendChild(footer)
