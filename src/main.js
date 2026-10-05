@@ -46,6 +46,8 @@ const cards = [
   }
 ]
 const deck = [...cards, ...cards]
+const openCards = []
+const currentCards = []
 
 const body = document.querySelector('body')
 
@@ -59,15 +61,20 @@ function shuffle(cards) {
 shuffle(deck)
 
 function fillBoard(board, cards) {
+  let count = 1;
   cards.forEach(card => {
     const boardItem = document.createElement('li')
     boardItem.classList.add('board__item')
-    boardItem.id = card.id
+    boardItem.id = count
+    boardItem.dataset.id = card.id
+    count += 1
     const boardItemImgFront = document.createElement('img')
     boardItemImgFront.classList.add('board__item-img','board__item-img-front')
     boardItemImgFront.src = card.url
+    boardItemImgFront.setAttribute('draggable', false);
     const boardItemImgBack = document.createElement('img')
     boardItemImgBack.classList.add('board__item-img','board__item-img-back')
+    boardItemImgBack.setAttribute('draggable', false);
     boardItemImgBack.src = question_mark
     boardItem.appendChild(boardItemImgFront)
     boardItem.appendChild(boardItemImgBack)
@@ -106,7 +113,31 @@ body.appendChild(main)
 
 fillBoard(board, deck)
 
-
+board.addEventListener('click',(event)=>{
+  if (currentCards.length < 2) { 
+    const boardItem = event.target.closest('.board__item')
+    if (boardItem && !boardItem.classList.contains('active')) {
+      boardItem.classList.add('active')
+      currentCards.push(boardItem)
+      if (currentCards.length === 2) {
+        if (currentCards[0].dataset.id === currentCards[1].dataset.id) {
+          openCards.push(...currentCards)
+          if (openCards.length === 16) {
+            console.log('Winner')            
+          }
+          currentCards.length = 0;
+        } else {
+          setTimeout(()=>{
+            currentCards[0].classList.remove('active');
+            currentCards[1].classList.remove('active');
+            currentCards.length = 0;
+          },800)
+        }
+      }
+    }
+  }
+  console.log(openCards)
+})
 
 //footer
 const footer = document.createElement('footer')
