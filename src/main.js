@@ -48,6 +48,10 @@ const cards = [
 const deck = [...cards, ...cards]
 const openCards = []
 const currentCards = []
+let movesCount = 0;
+let matchiesCount = 0;
+const now = new Date(); 
+console.log(now.toLocaleDateString('en-GB'))
 
 const body = document.querySelector('body')
 
@@ -60,7 +64,7 @@ function shuffle(cards) {
 
 shuffle(deck)
 
-function fillBoard(board, cards) {
+function fillBoard(cards) {
   let count = 1;
   cards.forEach(card => {
     const boardItem = document.createElement('li')
@@ -106,12 +110,26 @@ body.appendChild(header)
 const main = document.createElement('main')
 main.classList.add('section')
 
+const stats = document.createElement('div')
+stats.classList.add('stats')
+const moves = document.createElement('span')
+moves.classList.add('moves')
+moves.appendChild(document.createTextNode('Moves - 0'))
+const matchies = document.createElement('span')
+matchies.classList.add('matchies')
+matchies.appendChild(document.createTextNode('Matchies - 0 of 8'))
+
+stats.appendChild(moves)
+stats.appendChild(matchies)
+main.appendChild(stats)
+
+
 const board = document.createElement('ul')
 board.classList.add('board')
 main.appendChild(board)
 body.appendChild(main)
 
-fillBoard(board, deck)
+fillBoard(deck)
 
 board.addEventListener('click',(event)=>{
   if (currentCards.length < 2) { 
@@ -120,7 +138,13 @@ board.addEventListener('click',(event)=>{
       boardItem.classList.add('active')
       currentCards.push(boardItem)
       if (currentCards.length === 2) {
+        movesCount += 1
+        console.log("moves - ", movesCount)
+        moves.innerText = `Moves - ${movesCount}`      
         if (currentCards[0].dataset.id === currentCards[1].dataset.id) {
+          matchiesCount += 1
+          console.log("matchies -", matchiesCount)
+          matchies.innerText = `Matchies - ${matchiesCount} of 8`  
           openCards.push(...currentCards)
           if (openCards.length === 16) {
             console.log('Winner')            
@@ -138,6 +162,23 @@ board.addEventListener('click',(event)=>{
   }
   console.log(openCards)
 })
+
+newGameButton.addEventListener('click',()=>{
+  console.log('new game')
+  board.replaceChildren();
+  shuffle(deck)
+  fillBoard(deck)
+  movesCount = 0
+  matchiesCount = 0
+  moves.innerText = `Moves - ${movesCount}`
+  matchies.innerText = `Matchies - ${matchiesCount} of 8`
+
+})
+
+leadersBoardButton.addEventListener('click',()=>{
+  console.log('leders board')
+})
+
 
 //footer
 const footer = document.createElement('footer')
